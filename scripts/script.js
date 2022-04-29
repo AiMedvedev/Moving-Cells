@@ -1,59 +1,52 @@
+'use strict';
 
 const container = document.querySelector('.container');
 const squareBody = document.querySelector('.square-body');
 const blocks = document.querySelectorAll('.block');
-
+const blockNumbers = document.querySelectorAll('.block-number');
 const arrowLeft = document.querySelectorAll('.arrow.left');
 const arrowRight = document.querySelectorAll('.arrow.right');
 const arrowTop = document.querySelectorAll('.arrow.top');
 const arrowBottom = document.querySelectorAll('.arrow.bottom');
 
-let playingField = /* JSON.parse(localStorage.getItem('gameStatus')) || */ [];
+const getBlocks = () => {
+    const numbers = JSON.parse(localStorage.getItem('status'))
+    if (numbers) {
+        const blockNumbers = document.querySelectorAll('.block-number')
+        blockNumbers.forEach((block, index) => {
+            block.innerHTML = numbers[index]
+        })
+    }
+}
+
+const postBlocks = () => {
+    const numbers = []
+    blockNumbers.forEach(block => {
+        numbers.push(block.innerHTML)
+    })
+    localStorage.setItem('status', JSON.stringify(numbers))
+}
+
+const playingField = [];
+const startValues = [];
 
 blocks.forEach(item => {
     playingField.push(item);
 });
 
-localStorage.setItem('gameStatus', JSON.stringify(playingField));
-//JSON.parse(JSON.stringify(playingField));
-/* console.log(playingField);
-console.log(firstArr); */
-
-//console.log(playingField);
-//localStorage.setItem("gameStatus", JSON.stringify(playingField));
-
-const render = () => {
-    squareBody.innerHTML = '';
-    playingField = JSON.parse(localStorage.getItem('gameStatus'));
-    playingField.forEach((item) => {
-        const div = document.createElement('div');
-        
-        div.classList.add('block');
-        div.innerHTML = '<div class="block-number">' + item.innerText + '</div>' + 
-        '<div class="block-btn">' + 
-            '<div class="arrow left"><img src="img/arrow-left.svg" alt=""></div>' + 
-            '<div class="arrow right"><img src="img/arrow-right.svg" alt=""></div>' + 
-            '<div class="arrow top"><img src="img/arrow-up.svg" alt=""></div>' + 
-            '<div class="arrow bottom"><img src="img/arrow-down.svg" alt=""></div>' + 
-        '</div>';
-        
-        squareBody.append(div);
-        
-    });
-
-    localStorage.setItem('gameStatus', JSON.stringify(playingField));
-    playingField = JSON.parse(localStorage.getItem('gameStatus'));
-};
+blockNumbers.forEach(item => {
+    startValues.push(item.innerHTML);
+});
 
 
-//let newArr = playingField.map((_, i, a) => a.slice(i * 5, i * 5 + 5)).filter((el) => el.length);  для создания двумерного массива из обычного
+getBlocks();
 
 container.addEventListener('click', (e) => {
     let targetIndex;
-    let targetBlock = e.target.closest('.block');
 
     const getTargetIndex = () => {
         playingField.forEach((item) => {
+            let targetBlock = e.target.closest('.block');
             if (item !== targetBlock) {
                 targetIndex = playingField.indexOf(targetBlock);
                 return targetIndex;
@@ -63,53 +56,38 @@ container.addEventListener('click', (e) => {
 
     if (e.target.matches('.arrow.left img')) {
         getTargetIndex();
-        console.log(targetIndex);
-        playingField[targetIndex] = [playingField[targetIndex - 1], playingField[targetIndex - 1] = playingField[targetIndex]][0];
-
-        localStorage.setItem('gameStatus', JSON.stringify(playingField));
-        render();
-        //playingField = JSON.parse(localStorage.getItem('gameStatus'));
-        /* const tmp = blocks[targetIndex].innerHTML;
-        blocks[targetIndex].innerHTML = blocks[targetIndex - 1].innerHTML;
-        blocks[targetIndex - 1].innerHTML = tmp; */
+        if (targetIndex >= 1) {
+        blockNumbers[targetIndex].innerHTML = [blockNumbers[targetIndex - 1].innerHTML, blockNumbers[targetIndex - 1].innerHTML = blockNumbers[targetIndex].innerHTML][0];
+        }
+        postBlocks();
     }
 
     if (e.target.matches('.arrow.right img')) {
         getTargetIndex();
-        console.log(targetIndex);
-        playingField[targetIndex] = [playingField[targetIndex + 1], playingField[targetIndex + 1] = playingField[targetIndex]][0];
-
-        localStorage.setItem('gameStatus', JSON.stringify(playingField));
-        render();
-        //render();
-        /* const tmp = blocks[targetIndex].innerHTML;
-        blocks[targetIndex].innerHTML = blocks[targetIndex + 1].innerHTML;
-        blocks[targetIndex + 1].innerHTML = tmp; */
+        if (targetIndex <= 23) {
+        blockNumbers[targetIndex].innerHTML = [blockNumbers[targetIndex + 1].innerHTML, blockNumbers[targetIndex + 1].innerHTML = blockNumbers[targetIndex].innerHTML][0];
+        }
+        postBlocks();
     }
 
     if (e.target.matches('.arrow.top img')) {
         getTargetIndex();
-        console.log(targetIndex);
-        playingField[targetIndex] = [playingField[targetIndex - 5], playingField[targetIndex - 5] = playingField[targetIndex]][0];
-
-        localStorage.setItem('gameStatus', JSON.stringify(playingField));
-        render();
-        //render();
-        /* const tmp = blocks[targetIndex].innerHTML;
-        blocks[targetIndex].innerHTML = blocks[targetIndex - 5].innerHTML;
-        blocks[targetIndex - 5].innerHTML = tmp; */
+        if (targetIndex >= 5) {
+        blockNumbers[targetIndex].innerHTML = [blockNumbers[targetIndex - 5].innerHTML, blockNumbers[targetIndex - 5].innerHTML = blockNumbers[targetIndex].innerHTML][0];
+        }
+        postBlocks();
     }
 
     if (e.target.matches('.arrow.bottom img')) {
         getTargetIndex();
+        if (targetIndex <= 19) {
+        blockNumbers[targetIndex].innerHTML = [blockNumbers[targetIndex + 5].innerHTML, blockNumbers[targetIndex + 5].innerHTML = blockNumbers[targetIndex].innerHTML][0];
+        }
+        postBlocks();
+    }
 
-        playingField[targetIndex] = [playingField[targetIndex + 5], playingField[targetIndex + 5] = playingField[targetIndex]][0];
-        console.log(targetIndex);
-        localStorage.setItem('gameStatus', JSON.stringify(playingField));
-        render();
-        //render();
-        /* const tmp = blocks[targetIndex].innerHTML;
-        blocks[targetIndex].innerHTML = blocks[targetIndex + 5].innerHTML;
-        blocks[targetIndex + 5].innerHTML = tmp; */
+    if (e.target.matches('.btn-reset')) {
+        localStorage.setItem('status', JSON.stringify(startValues))
+        getBlocks();
     }
 })
